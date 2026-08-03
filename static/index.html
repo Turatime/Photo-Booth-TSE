@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Booth Studio - Open House TSE 2026</title>
+  <!-- Google Fonts: Outfit & Sukhumvit Set -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Sukhumvit+Set&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+  <!-- ==========================================
+       NAVBAR / TOP HEADER
+       ========================================== -->
+  <header class="app-header">
+    <div class="header-container">
+      <!-- Step Indicator Dots -->
+      <div class="step-indicator">
+        <div class="step-item active" id="stepIndicator1">
+          <span class="step-num">1</span>
+          <span class="step-label">ถ่ายภาพ (Camera)</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step-item" id="stepIndicator2">
+          <span class="step-num">2</span>
+          <span class="step-label">เลือกกรอบรูป (Frame)</span>
+        </div>
+      </div>
+
+      <!-- Camera status box (Shows Connected / Disconnected Status) -->
+      <div class="cam-status-box" id="camStatusBox">
+        <span class="status-dot"></span>
+        <span id="camStatusText">Connecting...</span>
+        <select id="cameraSelect" class="styled-select" style="margin-left: 8px;">
+          <option value="">กำลังเลือกกล้อง...</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       STEP 1: FULLSCREEN CAMERA CAPTURE STUDIO
+       ========================================== -->
+  <main class="studio-screen" id="screenStep1">
+    <div class="screen-layout step1-full-layout">
+      <!-- WEBCAM VIEWPORT (FULL SIZE) -->
+      <div class="card glass-card main-viewport-card">
+        <div class="webcam-viewport full-viewport" id="viewport">
+          <video id="webcamVideo" autoplay playsinline muted></video>
+          <canvas id="captureCanvas" style="display: none;"></canvas>
+
+          <!-- Countdown Overlay (Top-Center, Transparent BG) -->
+          <div class="countdown-overlay" id="countdownOverlay" style="display: none;">
+            <span id="countdownText">3</span>
+          </div>
+
+          <!-- Flash Effect -->
+          <div class="flash-overlay" id="flashOverlay"></div>
+        </div>
+
+        <!-- CONTROL BUTTONS -->
+        <div class="control-actions hero-actions">
+          <button id="btnAutoShoot" class="btn btn-primary btn-hero">
+            <i class="fa-solid fa-play"></i> เริ่มถ่าย 3 ช็อต
+          </button>
+          <button id="btnReset" class="btn btn-danger btn-compact">
+            <i class="fa-solid fa-rotate-right"></i> ถ่ายใหม่ทั้งหมด
+          </button>
+        </div>
+
+        <!-- 3 SHOT THUMBNAILS AT BOTTOM -->
+        <div class="shots-container">
+          <div class="shot-card" data-slot="0">
+            <div class="shot-preview" id="thumb0">
+              <i class="fa-solid fa-image"></i>
+              <span>ช็อตที่ 1</span>
+            </div>
+            <button class="btn-retake" onclick="app.shootSingleSlot(0)"><i class="fa-solid fa-camera"></i> ถ่ายช็อต 1</button>
+          </div>
+          <div class="shot-card" data-slot="1">
+            <div class="shot-preview" id="thumb1">
+              <i class="fa-solid fa-image"></i>
+              <span>ช็อตที่ 2</span>
+            </div>
+            <button class="btn-retake" onclick="app.shootSingleSlot(1)"><i class="fa-solid fa-camera"></i> ถ่ายช็อต 2</button>
+          </div>
+          <div class="shot-card" data-slot="2">
+            <div class="shot-preview" id="thumb2">
+              <i class="fa-solid fa-image"></i>
+              <span>ช็อตที่ 3</span>
+            </div>
+            <button class="btn-retake" onclick="app.shootSingleSlot(2)"><i class="fa-solid fa-camera"></i> ถ่ายช็อต 3</button>
+          </div>
+        </div>
+
+        <!-- NEXT STEP BUTTON -->
+        <div class="next-step-bar">
+          <button id="btnGoToStep2" class="btn btn-gradient-next btn-xl">
+            เลือกกรอบรูป <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       STEP 2: FRAME SELECTION & SHARE SCREEN
+       ========================================== -->
+  <main class="studio-screen" id="screenStep2" style="display: none;">
+    <div class="screen-layout step2-layout">
+      
+      <!-- TOP NAVIGATION BAR -->
+      <div class="nav-back-bar">
+        <button id="btnBackToStep1" class="btn btn-secondary">
+          <i class="fa-solid fa-arrow-left"></i> ย้อนกลับไปถ่ายใหม่
+        </button>
+        <h2>เลือกกรอบรูป และ ดาวน์โหลดรูปถ่าย (Photo Strip Preview)</h2>
+      </div>
+
+      <div class="step2-grid">
+        <!-- LEFT: LARGE CENTER PHOTO STRIP PREVIEW -->
+        <div class="card glass-card preview-card">
+          <div class="strip-preview-wrapper">
+            <div class="strip-container" id="stripContainer">
+              <img id="compositeResultImg" src="" alt="Photo Strip Preview" style="display: none;">
+              <div class="spinner" id="renderSpinner">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <span>กำลังประกอบกรอบรูป HD...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: FRAME SELECTION & DOWNLOAD ACTIONS -->
+        <div class="card glass-card frame-controls-card">
+          <div class="theme-selector-box">
+            <h3><i class="fa-solid fa-palette"></i> เลือกสีกรอบรูป (Frames):</h3>
+            <div class="swatches-list">
+              <button class="swatch-btn active" data-frame="Black Frame (BF)" style="--theme-color: #18181B;">
+                <span class="dot" style="background: #18181B;"></span>
+                <div class="swatch-text">
+                  <strong>Black Classic</strong>
+                </div>
+              </button>
+              <button class="swatch-btn" data-frame="Wood Frame (FT)" style="--theme-color: #78350F;">
+                <span class="dot" style="background: #78350F;"></span>
+                <div class="swatch-text">
+                  <strong>Warm Wood</strong>
+                </div>
+              </button>
+              <button class="swatch-btn" data-frame="Red Frame (RF)" style="--theme-color: #991B1B;">
+                <span class="dot" style="background: #991B1B;"></span>
+                <div class="swatch-text">
+                  <strong>Ruby Red</strong>
+                </div>
+              </button>
+              <button class="swatch-btn" data-frame="Frame 33" style="--theme-color: #581C87;">
+                <span class="dot" style="background: #581C87;"></span>
+                <div class="swatch-text">
+                  <strong>Modern Frame 33</strong>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- ACTION BUTTONS -->
+          <div class="step2-actions">
+            <button id="btnUploadQR" class="btn btn-info btn-xl">
+              <i class="fa-solid fa-qrcode"></i> สแกน QR Code
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       QR CODE SHARE MODAL DIALOG
+       ========================================== -->
+  <div class="modal-overlay" id="qrModal" style="display: none;">
+    <div class="modal-card">
+      <button class="modal-close" id="btnCloseModal">&times;</button>
+      <div class="modal-header">
+        <i class="fa-solid fa-qrcode"></i>
+        <h3>สแกน QR Code</h3>
+        <p>ใช้กล้องมือถือสแกนเพื่อดาวน์โหลดรูปภาพ </p>
+      </div>
+      <div class="modal-body">
+        <div class="qr-spinner" id="qrSpinner">
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+          <span>กำลังอัปโหลดรูปไปที่ Google Drive...</span>
+        </div>
+        <img id="qrImg" src="" alt="QR Code" style="display: none;">
+        <input type="text" id="gdriveUrlInput" class="styled-input" readonly placeholder="Google Drive Link...">
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
