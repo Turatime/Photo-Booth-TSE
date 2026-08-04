@@ -16,6 +16,7 @@ class BeautyPlusApp {
     this.sessionPhotos = [null, null, null];
     this.selectedFrameKey = "Black Frame (BF)";
     this.isCountingDown = false;
+    this.isFlipped = true;
     this.lastCompositeResult = null;
     this.currentStep = 1;
 
@@ -37,6 +38,9 @@ class BeautyPlusApp {
     // Control Buttons (Step 1)
     const btnAuto = document.getElementById('btnAutoShoot');
     if (btnAuto) btnAuto.addEventListener('click', () => this.startAutoShootSequence());
+
+    const btnFlip = document.getElementById('btnToggleFlip');
+    if (btnFlip) btnFlip.addEventListener('click', () => this.toggleFlip());
 
     const btnReset = document.getElementById('btnReset');
     if (btnReset) btnReset.addEventListener('click', () => this.resetSession());
@@ -157,6 +161,11 @@ class BeautyPlusApp {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.videoElem.srcObject = this.stream;
+      if (this.videoElem) {
+        const val = this.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
+        this.videoElem.style.setProperty('transform', val, 'important');
+        this.videoElem.style.setProperty('-webkit-transform', val, 'important');
+      }
 
       if (this.camStatusBox) this.camStatusBox.className = 'cam-status-box connected';
       if (this.cameraSelect) this.cameraSelect.style.display = 'inline-block';
@@ -261,15 +270,45 @@ class BeautyPlusApp {
     setTimeout(() => flash.classList.remove('flash-active'), 150);
   }
 
+  toggleFlip() {
+    this.isFlipped = !this.isFlipped;
+    const video = this.videoElem || document.getElementById('webcamVideo');
+    const btnFlip = document.getElementById('btnToggleFlip');
+
+    if (video) {
+      const transformVal = this.isFlipped ? 'scaleX(-1)' : 'scaleX(1)';
+      video.style.setProperty('transform', transformVal, 'important');
+      video.style.setProperty('-webkit-transform', transformVal, 'important');
+    }
+
+    if (btnFlip) {
+      if (this.isFlipped) {
+        btnFlip.innerHTML = '<i class="fa-solid fa-right-left"></i> กลับด้านภาพ: เปิด (Flipped)';
+        btnFlip.style.borderColor = 'var(--accent-pink)';
+        btnFlip.style.background = 'rgba(236, 72, 153, 0.25)';
+        btnFlip.style.color = '#FFFFFF';
+      } else {
+        btnFlip.innerHTML = '<i class="fa-solid fa-right-left"></i> กลับด้านภาพ: ปิด (Normal)';
+        btnFlip.style.borderColor = 'var(--card-border)';
+        btnFlip.style.background = '#27272A';
+        btnFlip.style.color = '#A1A1AA';
+      }
+    }
+  }
+
   captureShotToSlot(slotIdx) {
     const ctx = this.canvasElem.getContext('2d');
     this.canvasElem.width = this.videoElem.videoWidth || 640;
     this.canvasElem.height = this.videoElem.videoHeight || 480;
 
-    // Mirror view
-    ctx.translate(this.canvasElem.width, 0);
-    ctx.scale(-1, 1);
+    ctx.save();
+    if (this.isFlipped) {
+      // Mirror view
+      ctx.translate(this.canvasElem.width, 0);
+      ctx.scale(-1, 1);
+    }
     ctx.drawImage(this.videoElem, 0, 0, this.canvasElem.width, this.canvasElem.height);
+    ctx.restore();
 
     const dataUrl = this.canvasElem.toDataURL('image/jpeg', 0.92);
     this.sessionPhotos[slotIdx] = dataUrl;

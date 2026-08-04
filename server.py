@@ -122,10 +122,16 @@ async def upload_gdrive(filename: str = Form(...)):
             raise HTTPException(status_code=404, detail="Output image not found")
 
         gdrive_url = fp.upload_to_gdrive(local_path, BASE_DIR)
-        if not gdrive_url:
+        if gdrive_url == "MISSING_CLIENT_SECRETS":
             return JSONResponse({
                 "status": "warning",
-                "message": "Google Drive upload failed or not configured.",
+                "message": "⚠️ ไม่พบไฟล์ client_secrets.json กรุณาวางไฟล์จาก Google Cloud Console ในโฟลเดอร์โปรเจกต์",
+                "url": ""
+            })
+        elif not gdrive_url or not gdrive_url.startswith("http"):
+            return JSONResponse({
+                "status": "warning",
+                "message": "⚠️ การอัปโหลด Google Drive ไม่สำเร็จ หรือยังไม่ได้ล็อกอิน",
                 "url": ""
             })
 

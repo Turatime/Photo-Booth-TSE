@@ -123,7 +123,7 @@ def upload_to_gdrive(
             client_secrets_path = alt[-1]
         else:
             print(f"⚠️ client_secrets.json not found in {base_dir}")
-            return ""
+            return "MISSING_CLIENT_SECRETS"
 
     gauth = GoogleAuth()
     gauth.DEFAULT_SETTINGS['client_config_file'] = str(client_secrets_path)

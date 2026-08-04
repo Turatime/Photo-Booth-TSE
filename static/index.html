@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Sukhumvit+Set&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css?v=5">
 </head>
 <body>
 
@@ -51,7 +51,7 @@
       <!-- WEBCAM VIEWPORT (FULL SIZE) -->
       <div class="card glass-card main-viewport-card">
         <div class="webcam-viewport full-viewport" id="viewport">
-          <video id="webcamVideo" autoplay playsinline muted></video>
+          <video id="webcamVideo" class="flipped" autoplay playsinline muted></video>
           <canvas id="captureCanvas" style="display: none;"></canvas>
 
           <!-- Countdown Overlay (Top-Center, Transparent BG) -->
@@ -63,10 +63,13 @@
           <div class="flash-overlay" id="flashOverlay"></div>
         </div>
 
-        <!-- CONTROL BUTTONS -->
+        <!-- CONTROL BUTTONS (SINGLE ROW) -->
         <div class="control-actions hero-actions">
           <button id="btnAutoShoot" class="btn btn-primary btn-hero">
             <i class="fa-solid fa-play"></i> เริ่มถ่าย 3 ช็อต
+          </button>
+          <button id="btnToggleFlip" class="btn btn-secondary btn-compact">
+            <i class="fa-solid fa-right-left"></i> กลับด้านภาพ: เปิด (Flipped)
           </button>
           <button id="btnReset" class="btn btn-danger btn-compact">
             <i class="fa-solid fa-rotate-right"></i> ถ่ายใหม่ทั้งหมด
@@ -201,6 +204,6 @@
     </div>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=3"></script>
 </body>
 </html>

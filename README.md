@@ -112,11 +112,48 @@ Photo Booth/
 ├── FT.png                 # Warm Wood frame template
 ├── RF.png                 # Ruby Red frame template
 ├── Frame33.png            # Modern Frame 33 template
-├── client_secrets.json    # Google OAuth client secrets (Not committed to Git)
-├── static/                # Web frontend source files
-│   ├── index.html         # Main Studio HTML
-│   ├── styles.css         # Modern Glassmorphic CSS
-│   └── app.js             # WebRTC, Countdown, and API logic
-├── input_images/          # Captured raw photo shots
-└── output_images/         # Rendered composite photo strips and QR codes
-```
+├── client_secrets.json.example # Template for Google OAuth setup (Copy to client_secrets.json)
+├── client_secrets.json        # Google OAuth client secrets (Ignored by Git for security)
+├── static/                    # Web frontend source files
+│   ├── index.html             # Main Studio HTML
+│   ├── styles.css             # Modern Glassmorphic CSS
+│   └── app.js                 # WebRTC, Countdown, and API logic
+├── input_images/              # Captured raw photo shots
+└── output_images/             # Rendered composite photo strips and QR codes
+
+---
+### ขั้นตอนการหา `client_id` และ `client_secret` (ทำตาม 5 สเต็ปนี้ได้เลยครับ)
+
+สเต็ปที่ 1: เข้าสู่เว็บไซต์ Google Cloud Console
+1. ไปที่เว็บไซต์  [https://console.cloud.google.com/](https://console.cloud.google.com/)
+2. ล็อกอินด้วยบัญชี **Google / Gmail** ของคุณ
+
+สเต็ปที่ 2: สร้างโปรเจกต์ใหม่ (Create Project)
+1. กดที่เมนูด้านบนซ้าย (ข้างๆ โลโก้ Google Cloud) ➔ เลือก **"New Project" (โปรเจกต์ใหม่)**
+2. ตั้งชื่อโปรเจกต์ เช่น `Photo-Booth-Drive` แล้วกด **Create**
+
+สเต็ปที่ 3: เปิดใช้งาน Google Drive API
+1. ไปที่เมนูแถบซ้ายเลือก **APIs & Services** ➔ **Enabled APIs & Services**
+2. กดปุ่ม **"+ ENABLE APIS AND SERVICES"** ด้านบน
+3. ค้นหาคำว่า **Google Drive API** ➔ กดเลือกแล้วกดปุ่ม **ENABLE** (เปิดใช้งาน)
+
+สเต็ปที่ 4: ตั้งค่า OAuth Consent Screen (หน้าจอยินยอม)
+1. ไปที่เมนูแถบซ้าย **APIs & Services** ➔ **OAuth consent screen**
+2. เลือก User Type เป็น **External** ➔ กด **CREATE**
+3. กรอกข้อมูลเบื้องต้น:
+   - **App name**: `Photo Booth`
+   - **User support email**: เลือกอีเมล Gmail ของคุณ
+   - **Developer contact information**: กรอกอีเมล Gmail ของคุณ
+4. กด **SAVE AND CONTINUE** ไปเรื่อยๆ
+5. *(สำคัญ)* ในหัวข้อ **Test users** ให้กด **"+ ADD USERS"** แล้วใส่อีเมล Gmail ของคุณลงไป เพื่อให้บัญชีของคุณมีสิทธิ์ล็อกอินทดสอบ
+
+สเต็ปที่ 5: สร้างและดาวน์โหลด `client_id` และ `client_secret`
+1. ไปที่เมนูแถบซ้าย **APIs & Services** ➔ **Credentials**
+2. กดปุ่ม **"+ CREATE CREDENTIALS"** ด้านบน ➔ เลือก **OAuth client ID**
+3. ในช่อง Application type ให้เลือกเป็น **Desktop App** (หรือ **Web application**)
+4. ตั้งชื่อเป็น `Photo Booth Client` ➔ กด **CREATE**
+5. หน้าต่างจะเด้งแสดง Client ID และ Client Secret ขึ้นมา!
+   - คุณสามารถกดปุ่ม **"DOWNLOAD JSON"** ➔ แล้วเปลี่ยนชื่อไฟล์ที่โหลดมาเป็น **`client_secrets.json`**
+   - นำไปวางในโฟลเดอร์โปรเจกต์ Photo Booth (`/Users/timemy/Desktop/Photo Booth/`) ได้ทันทีครับ!
+
+---

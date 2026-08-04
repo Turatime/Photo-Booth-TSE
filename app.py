@@ -46,6 +46,7 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
         self.cap = None
         self.camera_index = 0
         self.is_camera_running = False
+        self.is_flipped = True
         
         # Photo storage for current session (3 photos)
         self.session_photos: list[Path | None] = [None, None, None]
@@ -173,43 +174,55 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
         # 3. Action Buttons Bar
         btn_bar = ctk.CTkFrame(self.left_panel, fg_color="transparent")
         btn_bar.grid(row=2, column=0, padx=15, pady=(0, 15), sticky="ew")
-        btn_bar.grid_columnconfigure((0, 1, 2), weight=1)
+        btn_bar.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
         self.btn_auto_shoot = ctk.CTkButton(
             btn_bar,
-            text="🚀 เริ่มถ่าย 3 ช็อตอัตโนมัติ",
-            font=ctk.CTkFont(size=15, weight="bold"),
+            text="🚀 เริ่มถ่าย 3 ช็อต",
+            font=ctk.CTkFont(size=14, weight="bold"),
             fg_color="#EC4899",
             hover_color="#DB2777",
             height=46,
             corner_radius=10,
             command=self.start_auto_shoot_sequence
         )
-        self.btn_auto_shoot.grid(row=0, column=0, padx=4, pady=4, sticky="ew")
+        self.btn_auto_shoot.grid(row=0, column=0, padx=3, pady=4, sticky="ew")
+
+        self.btn_flip = ctk.CTkButton(
+            btn_bar,
+            text="🪞 กลับด้านภาพ (Flipped)",
+            font=ctk.CTkFont(size=12),
+            fg_color="#3B82F6",
+            hover_color="#2563EB",
+            height=46,
+            corner_radius=10,
+            command=self.toggle_flip
+        )
+        self.btn_flip.grid(row=0, column=1, padx=3, pady=4, sticky="ew")
 
         self.btn_snap_single = ctk.CTkButton(
             btn_bar,
-            text="📸 ถ่ายเฉพาะช่องว่าง",
-            font=ctk.CTkFont(size=13),
+            text="📸 ถ่ายช่องว่าง",
+            font=ctk.CTkFont(size=12),
             fg_color="#8B5CF6",
             hover_color="#7C3AED",
             height=46,
             corner_radius=10,
             command=self.snap_current_slot
         )
-        self.btn_snap_single.grid(row=0, column=1, padx=4, pady=4, sticky="ew")
+        self.btn_snap_single.grid(row=0, column=2, padx=3, pady=4, sticky="ew")
 
         self.btn_reset = ctk.CTkButton(
             btn_bar,
-            text="🔄 ถ่ายใหม่ทั้งหมด",
-            font=ctk.CTkFont(size=13),
+            text="🔄 ถ่ายใหม่",
+            font=ctk.CTkFont(size=12),
             fg_color="#EF4444",
             hover_color="#DC2626",
             height=46,
             corner_radius=10,
             command=self.reset_session
         )
-        self.btn_reset.grid(row=0, column=2, padx=4, pady=4, sticky="ew")
+        self.btn_reset.grid(row=0, column=3, padx=3, pady=4, sticky="ew")
 
         # ==========================================
         # RIGHT PANEL: BeautyPlus Photo Strip Result Studio
@@ -316,6 +329,13 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
         self.is_camera_running = True
         self.update_video_feed()
 
+    def toggle_flip(self):
+        self.is_flipped = not self.is_flipped
+        if self.is_flipped:
+            self.btn_flip.configure(text="🪞 กลับด้านภาพ (Flipped)")
+        else:
+            self.btn_flip.configure(text="🪞 ภาพปกติ (Normal)")
+
     def update_video_feed(self):
         """Live feed thread update ~30 FPS."""
         if not self.is_camera_running or self.cap is None:
@@ -323,7 +343,8 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
 
         ret, frame = self.cap.read()
         if ret:
-            frame = cv2.flip(frame, 1) # Mirror feel
+            if self.is_flipped:
+                frame = cv2.flip(frame, 1) # Mirror feel
             self.current_raw_frame = frame.copy()
 
             display_frame = self._draw_camera_overlays(frame.copy())
@@ -526,7 +547,12 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
 
         def task():
             url = fp.upload_to_gdrive(self.last_output_path, BASE_DIR)
-            if url:
+            if url == "MISSING_CLIENT_SECRETS":
+                self.after(0, lambda: self._show_error_modal(
+                    "⚠️ ไม่พบไฟล์ client_secrets.json",
+                    "กรุณานำไฟล์ client_secrets.json จาก Google Cloud Console\nวางไว้ในโฟลเดอร์โปรเจกต์ เพื่อใช้งานระบบล็อกอิน Gmail / Google Drive"
+                ))
+            elif url and url.startswith("http"):
                 qr_out = OUTPUT_DIR / f"{self.last_output_path.stem}_qr.png"
                 fp.generate_qr_code(url, qr_out)
                 self.last_gdrive_url = url
@@ -534,9 +560,27 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
 
                 self.after(0, lambda: self._show_qr_modal(url, qr_out))
             else:
-                print("GDrive Upload failed or not configured.")
+                self.after(0, lambda: self._show_error_modal(
+                    "⚠️ ไม่สามารถอัปโหลดไปยัง Google Drive ได้",
+                    "เกิดข้อผิดพลาดในการรับรองสิทธิ์หรือการเชื่อมต่ออินเทอร์เน็ต"
+                ))
 
         threading.Thread(target=task, daemon=True).start()
+
+    def _show_error_modal(self, title: str, message: str):
+        modal = ctk.CTkToplevel(self)
+        modal.title(title)
+        modal.geometry("480x240")
+        modal.grab_set()
+
+        lbl_title = ctk.CTkLabel(modal, text=title, font=ctk.CTkFont(size=16, weight="bold"), text_color="#EF4444")
+        lbl_title.pack(padx=20, pady=(20, 10))
+
+        lbl_msg = ctk.CTkLabel(modal, text=message, font=ctk.CTkFont(size=13), justify="center")
+        lbl_msg.pack(padx=20, pady=10)
+
+        btn_ok = ctk.CTkButton(modal, text="ตกลง", command=modal.destroy, fg_color="#3B82F6", width=120)
+        btn_ok.pack(padx=20, pady=(10, 20))
 
     def _show_qr_modal(self, url: str, qr_path: Path):
         modal = ctk.CTkToplevel(self)
