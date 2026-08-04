@@ -12,23 +12,18 @@ from PIL import Image
 import qrcode
 
 # ---------- DEFAULT CONSTANTS ----------
-SLOT_W = 542
-SLOT_H = 408
-
 SLOTS_PX = [
-    (45, 80),    # ซ้ายบน (Slot 1)
-    (45, 490),   # ซ้ายกลาง (Slot 2)
-    (45, 900),   # ซ้ายล่าง (Slot 3)
-    (630, 80),   # ขวาบน (Slot 4 - clone 1)
-    (630, 490),  # ขวากลาง (Slot 5 - clone 2)
-    (630, 900),  # ขวาล่าง (Slot 6 - clone 3)
+    (325, 300, 435, 415),  # Slot 1 (Top)
+    (325, 745, 435, 420),  # Slot 2 (Middle)
+    (325, 1200, 435, 420)  # Slot 3 (Bottom)
 ]
 
 FRAME_TEMPLATES = {
-    "Black Frame (BF)": "BF.png",
-    "Wood Frame (FT)": "FT.png",
-    "Red Frame (RF)": "RF.png",
-    "Frame 33": "Frame33.png"
+    "DeepDive Pink": "DeepDive - 1.png",
+    "DeepDive Blue": "DeepDive - 2.png",
+    "เปิดโลกกิจกรรม": "DeepDive - 3.png",
+    "#TSE37 ไม่เด็ดได้ไง": "DeepDive - 4.png",
+    "วิศวะไม่ได้ร้าย": "DeepDive - 5.png"
 }
 
 def fit_inside(im: Image.Image, max_w: int, max_h: int) -> Image.Image:
@@ -70,7 +65,7 @@ def create_composite_frame(
     if not photo_paths:
         raise ValueError("No photos provided for frame composition")
 
-    for i, (slot_x, slot_y) in enumerate(SLOTS_PX):
+    for i, (slot_x, slot_y, slot_w, slot_h) in enumerate(SLOTS_PX):
         img_index = i % len(photo_paths)
         src = photo_paths[img_index]
         
@@ -78,10 +73,10 @@ def create_composite_frame(
             continue
 
         im = Image.open(src).convert("RGBA")
-        im = fit_inside(im, SLOT_W, SLOT_H)
+        im = fit_inside(im, slot_w, slot_h)
 
-        paste_x = slot_x + (SLOT_W - im.width) // 2
-        paste_y = slot_y + (SLOT_H - im.height) // 2
+        paste_x = slot_x + (slot_w - im.width) // 2
+        paste_y = slot_y + (slot_h - im.height) // 2
         canvas.paste(im, (paste_x, paste_y), im)
 
     # Overlay frame template on top of images

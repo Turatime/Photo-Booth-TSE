@@ -264,6 +264,43 @@ body.shooting-fullscreen #webcamVideo,
   padding: 0 !important;
 }
 
+/* CROP GUIDE OVERLAY FOR CAMERA VIEW */
+.crop-guide-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  background: radial-gradient(circle, transparent 40%, rgba(0, 0, 0, 0.55) 85%);
+}
+
+.crop-guide-box {
+  height: 85%;
+  aspect-ratio: 435 / 420;
+  max-width: 90%;
+  border: 3px dashed var(--accent-pink);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.5), inset 0 0 20px rgba(236, 72, 153, 0.2);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 10px;
+}
+
+.crop-guide-badge {
+  background: rgba(236, 72, 153, 0.9);
+  color: #FFF;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
 /* COUNTDOWN OVERLAY */
 .countdown-overlay {
   position: absolute;

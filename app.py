@@ -50,7 +50,7 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
         
         # Photo storage for current session (3 photos)
         self.session_photos: list[Path | None] = [None, None, None]
-        self.selected_frame_key = "Black Frame (BF)"
+        self.selected_frame_key = "DeepDive Pink"
         
         # Countdown state
         self.is_counting_down = False
@@ -261,27 +261,28 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
 
         swatch_frame = ctk.CTkFrame(theme_box, fg_color="transparent")
         swatch_frame.pack(fill="x", padx=8, pady=(0, 10))
-        swatch_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        swatch_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 
         # Swatch buttons
         swatches = [
-            ("🖤 Black", "Black Frame (BF)", "#18181B"),
-            ("🪵 Wood", "Wood Frame (FT)", "#78350F"),
-            ("❤️ Red", "Red Frame (RF)", "#991B1B"),
-            ("🎨 Frame 33", "Frame 33", "#4C1D95")
+            ("DeepDive Pink", "DeepDive Pink", "#EC4899"),
+            ("DeepDive Blue", "DeepDive Blue", "#3B82F6"),
+            ("เปิดโลกกิจกรรม", "เปิดโลกกิจกรรม", "#475569"),
+            ("#TSE37 ไม่เด็ดได้ไง", "#TSE37 ไม่เด็ดได้ไง", "#B91C1C"),
+            ("วิศวะไม่ได้ร้าย", "วิศวะไม่ได้ร้าย", "#D97706")
         ]
 
         for idx, (name, key, color) in enumerate(swatches):
             btn = ctk.CTkButton(
                 swatch_frame,
                 text=name,
-                font=ctk.CTkFont(size=12, weight="bold"),
+                font=ctk.CTkFont(size=11, weight="bold"),
                 fg_color=color,
                 height=36,
                 corner_radius=8,
                 command=lambda k=key: self.select_frame_theme(k)
             )
-            btn.grid(row=0, column=idx, padx=3, pady=2, sticky="ew")
+            btn.grid(row=0, column=idx, padx=2, pady=2, sticky="ew")
 
         # 3. Bottom Download & Share Action Bar
         action_box = ctk.CTkFrame(self.right_panel, corner_radius=12, fg_color="transparent")
@@ -364,24 +365,39 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
 
     def _draw_camera_overlays(self, frame):
         """Draws face alignment guides and countdown overlay."""
-        h, w, _ = frame.shape
+        # Calculate frame slot aspect ratio crop area (435 x 420)
+        target_aspect = 435 / 420
+        current_aspect = w / h
 
-        guide_w = int(w * 0.68)
-        guide_h = int(guide_w * (408 / 542))
+        if current_aspect > target_aspect:
+            guide_h = int(h * 0.88)
+            guide_w = int(guide_h * target_aspect)
+        else:
+            guide_w = int(w * 0.88)
+            guide_h = int(guide_w / target_aspect)
+
         x1 = (w - guide_w) // 2
         y1 = (h - guide_h) // 2
         x2 = x1 + guide_w
         y2 = y1 + guide_h
 
-        # Elegant pink guide line
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 100, 255), 2)
+        # Dim area outside frame crop box
+        mask = frame.copy()
+        cv2.rectangle(mask, (0, 0), (w, h), (0, 0, 0), -1)
+        cv2.rectangle(mask, (x1, y1), (x2, y2), (255, 255, 255), -1)
+        # Apply 45% dimming outside crop area
+        dimmed = cv2.addWeighted(frame, 0.55, cv2.bitwise_and(frame, mask), 0.45, 0)
+        frame = dimmed
+
+        # Draw crisp pink guide box around photo slot area
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (236, 72, 153), 3)
         cv2.putText(
             frame,
-            "Align Face Inside Box",
-            (x1 + 10, y1 - 10),
+            "Photo Slot Area",
+            (x1 + 12, y1 + 30),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.6,
-            (200, 100, 255),
+            0.7,
+            (236, 72, 153),
             2
         )
 
@@ -500,7 +516,7 @@ class BeautyPlusPhotoBoothApp(ctk.CTk):
         if not valid_photos:
             return
 
-        frame_file = fp.FRAME_TEMPLATES.get(self.selected_frame_key, "BF.png")
+        frame_file = fp.FRAME_TEMPLATES.get(self.selected_frame_key, "DeepDive - 1.png")
         frame_path = BASE_DIR / frame_file
         if not frame_path.exists():
             return

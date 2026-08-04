@@ -14,7 +14,7 @@ class BeautyPlusApp {
     // Photo session state (3 photos)
     this.sessionId = 'session_' + Date.now();
     this.sessionPhotos = [null, null, null];
-    this.selectedFrameKey = "Black Frame (BF)";
+    this.selectedFrameKey = "DeepDive Pink (Sweet)";
     this.isCountingDown = false;
     this.isFlipped = true;
     this.lastCompositeResult = null;

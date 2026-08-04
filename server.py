@@ -67,11 +67,11 @@ async def process_composite(
     image1: str = Form(...),
     image2: str = Form(...),
     image3: str = Form(...),
-    frame_key: str = Form("Black Frame (BF)"),
+    frame_key: str = Form("DeepDive Pink"),
     session_id: str = Form(None)
 ):
     """
-    Receives 3 base64 images from browser webcam and session_id, renders composite 6-slot frame with Pillow,
+    Receives 3 base64 images from browser webcam and session_id, renders composite 3-slot frame with Pillow,
     overwriting session files cleanly without cluttering storage.
     """
     try:
@@ -93,11 +93,11 @@ async def process_composite(
             tmp_path.replace(img_path)
             saved_paths.append(img_path)
 
-        frame_file = fp.FRAME_TEMPLATES.get(frame_key, "BF.png")
+        frame_file = fp.FRAME_TEMPLATES.get(frame_key, "DeepDive - 1.png")
         frame_path = BASE_DIR / frame_file
 
         if not frame_path.exists():
-            frame_path = BASE_DIR / "BF.png"
+            frame_path = BASE_DIR / "DeepDive - 1.png"
 
         # Overwrite composite frame output file for this specific session
         out_path = fp.create_composite_frame(saved_paths, frame_path, OUTPUT_DIR, session_id=session_id)

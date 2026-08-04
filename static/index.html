@@ -54,6 +54,13 @@
           <video id="webcamVideo" class="flipped" autoplay playsinline muted></video>
           <canvas id="captureCanvas" style="display: none;"></canvas>
 
+          <!-- Real-Time Camera Slot Crop Guide Overlay -->
+          <div class="crop-guide-overlay" id="cropGuideOverlay">
+            <div class="crop-guide-box">
+              <span class="crop-guide-badge"><i class="fa-solid fa-expand"></i> พื้นที่รูปในกรอบ</span>
+            </div>
+          </div>
+
           <!-- Countdown Overlay (Top-Center, Transparent BG) -->
           <div class="countdown-overlay" id="countdownOverlay" style="display: none;">
             <span id="countdownText">3</span>
@@ -142,30 +149,36 @@
         <!-- RIGHT: FRAME SELECTION & DOWNLOAD ACTIONS -->
         <div class="card glass-card frame-controls-card">
           <div class="theme-selector-box">
-            <h3><i class="fa-solid fa-palette"></i> เลือกสีกรอบรูป (Frames):</h3>
+            <h3>เลือกกรอบรูป:</h3>
             <div class="swatches-list">
-              <button class="swatch-btn active" data-frame="Black Frame (BF)" style="--theme-color: #18181B;">
-                <span class="dot" style="background: #18181B;"></span>
+              <button class="swatch-btn active" data-frame="DeepDive Pink" style="--theme-color: #EC4899;">
+                <span class="dot" style="background: #EC4899;"></span>
                 <div class="swatch-text">
-                  <strong>Black Classic</strong>
+                  <strong>DeepDive Pink</strong>
                 </div>
               </button>
-              <button class="swatch-btn" data-frame="Wood Frame (FT)" style="--theme-color: #78350F;">
-                <span class="dot" style="background: #78350F;"></span>
+              <button class="swatch-btn" data-frame="DeepDive Blue" style="--theme-color: #3B82F6;">
+                <span class="dot" style="background: #3B82F6;"></span>
                 <div class="swatch-text">
-                  <strong>Warm Wood</strong>
+                  <strong>DeepDive Blue</strong>
                 </div>
               </button>
-              <button class="swatch-btn" data-frame="Red Frame (RF)" style="--theme-color: #991B1B;">
-                <span class="dot" style="background: #991B1B;"></span>
+              <button class="swatch-btn" data-frame="เปิดโลกกิจกรรม" style="--theme-color: #64748B;">
+                <span class="dot" style="background: #64748B;"></span>
                 <div class="swatch-text">
-                  <strong>Ruby Red</strong>
+                  <strong>เปิดโลกกิจกรรม</strong>
                 </div>
               </button>
-              <button class="swatch-btn" data-frame="Frame 33" style="--theme-color: #581C87;">
-                <span class="dot" style="background: #581C87;"></span>
+              <button class="swatch-btn" data-frame="#TSE37 ไม่เด็ดได้ไง" style="--theme-color: #EF4444;">
+                <span class="dot" style="background: #EF4444;"></span>
                 <div class="swatch-text">
-                  <strong>Modern Frame 33</strong>
+                  <strong>#TSE37 ไม่เด็ดได้ไง</strong>
+                </div>
+              </button>
+              <button class="swatch-btn" data-frame="วิศวะไม่ได้ร้าย" style="--theme-color: #F59E0B;">
+                <span class="dot" style="background: #F59E0B;"></span>
+                <div class="swatch-text">
+                  <strong>วิศวะไม่ได้ร้าย</strong>
                 </div>
               </button>
             </div>
